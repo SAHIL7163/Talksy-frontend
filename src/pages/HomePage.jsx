@@ -6,26 +6,23 @@ import {
   sendFriendRequest,
 } from "../lib/api";
 import { Link } from "react-router";
-import { CheckCircleIcon, MapPinIcon, UserPlusIcon, UsersIcon } from "lucide-react";
+import { CheckCircleIcon, MapPinIcon, UserPlusIcon, UsersIcon, MessageSquareIcon } from "lucide-react";
 import FriendCard from "../components/FriendCard";
 import NoFriendsFound from "../components/NoFriendsFound";
 import useAuthUser from "../hooks/useAuthUser";
-import { useSocket } from "../context/SocketContex";
+import { useSocket } from "../context/SocketContext";
 import toast from "react-hot-toast";
+
 
 const HomePage = () => {
   const socket = useSocket();
   const { authUser } = useAuthUser();
-
   const [friends, setFriends] = useState([]);
   const [loadingFriends, setLoadingFriends] = useState(true);
-
   const [recommendedUsers, setRecommendedUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
-
   const [outgoingFriendReqs, setOutgoingFriendReqs] = useState([]);
   const [outgoingRequestsIds, setOutgoingRequestsIds] = useState(new Set());
-
   const [isPending, setIsPending] = useState(false);
 
   // Register socket on mount
@@ -56,12 +53,10 @@ const HomePage = () => {
       setRecommendedUsers((prev) => [...prev, user]);
     });
 
-
     socket.on("friend_request_accepted", (request) => {
       const acceptedId = String(request._id);
       console.log("Incoming accepted request ID:", acceptedId);
 
-      // Remove from outgoingFriendReqs
       setOutgoingFriendReqs((prev) =>
         prev.filter((req) => {
           const reqId = String(req._id);
@@ -71,7 +66,6 @@ const HomePage = () => {
         })
       );
 
-      // Remove from outgoingRequestsIds Set
       setOutgoingRequestsIds((prev) => {
         const newSet = new Set(prev);
         newSet.delete(String(request.receiver?._id));
@@ -84,7 +78,6 @@ const HomePage = () => {
         )
       );
 
-      // Add new friend
       setFriends((prev) => [...prev, request.receiver]);
     });
 
@@ -108,20 +101,13 @@ const HomePage = () => {
     setIsPending(true);
     try {
       const req = await sendFriendRequest(userId);
-
-      // Update outgoing requests state
       setOutgoingFriendReqs((prev) => [...prev, req]);
-
-      // Update the Set immutably
       setOutgoingRequestsIds((prev) => new Set([...prev, userId]));
-
-      // Mark recommendedUsers immediately
       setRecommendedUsers((prev) =>
         prev.map((user) =>
           user._id === userId ? { ...user, requestSent: true } : user
         )
       );
-
       toast.success("Friend request sent successfully!");
     } catch (err) {
       console.error("Error sending friend request:", err);
@@ -131,10 +117,9 @@ const HomePage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-base-100">
+    <div className="min-h-screen w-full bg-base-100 relative">
       <div className="pt-16 pb-8 px-4 sm:px-6 lg:px-8 min-h-screen w-full">
         <div className="container mx-auto max-w-7xl space-y-8 lg:space-y-12">
-
           {/* Friends Section */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4">
             <div>
@@ -142,8 +127,8 @@ const HomePage = () => {
                 Your Friends
               </h1>
             </div>
-            <Link 
-              to="/notifications" 
+            <Link
+              to="/notifications"
               className="btn btn-outline btn-sm sm:btn-md hover:btn-primary transition-all duration-200"
             >
               <UsersIcon className="mr-2 size-4" />
@@ -213,7 +198,6 @@ const HomePage = () => {
                       className="card bg-base-200 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 border border-base-300/50 hover:border-primary/20 w-full"
                     >
                       <div className="card-body p-4 sm:p-6 space-y-4 h-full flex flex-col">
-                        {/* User Info */}
                         <div className="flex items-center gap-3">
                           <div className="avatar">
                             <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden ring-2 ring-base-300">
@@ -232,8 +216,6 @@ const HomePage = () => {
                             )}
                           </div>
                         </div>
-
-                        {/* Bio */}
                         {user.bio && (
                           <div className="flex-1">
                             <p className="text-xs sm:text-sm text-base-content/70 line-clamp-3">
@@ -241,8 +223,6 @@ const HomePage = () => {
                             </p>
                           </div>
                         )}
-
-                        {/* Action Button */}
                         <div className="mt-auto pt-2">
                           <button
                             className={`btn w-full text-xs sm:text-sm ${
@@ -280,6 +260,16 @@ const HomePage = () => {
           </section>
         </div>
       </div>
+
+      {/* Chat with AI Button */}
+        <Link
+        to="/ai-chat"
+        className="fixed bottom-6 right-6 btn btn-primary btn-md shadow-lg hover:btn-primary-focus transition-all duration-200 flex items-center gap-2"
+        title="Chat with AI"
+      >
+        <MessageSquareIcon className="w-5 h-5" />
+        <span>Chat with AI</span>
+      </Link>
     </div>
   );
 };

@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "react-router";
 import useAuthUser from "../hooks/useAuthUser";
-import { SendHorizontal, ArrowLeft, Smile, Video, PhoneOff, MoreVertical, Check, CheckCheck, Paperclip, VideoIcon } from "lucide-react";
+import { SendHorizontal, ArrowLeft, Smile, Video, MoreVertical, Check, CheckCheck, Paperclip, VideoIcon } from "lucide-react";
 import { useThemeStore } from "../store/useThemeStore";
 import { axiosInstance } from "../lib/axios";
 import Picker from "@emoji-mart/react";
 import emojiData from "@emoji-mart/data";
 import { DeleteMessage, fetchFriend, fetchMessages } from "../lib/api";
-import { useSocket } from "../context/SocketContex";
+import { useSocket } from "../context/SocketContext";
 
 const themes = {
   base: {

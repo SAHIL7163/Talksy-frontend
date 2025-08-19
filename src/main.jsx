@@ -7,7 +7,7 @@ import App from "./App.jsx";
 import { BrowserRouter } from "react-router";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { SocketProvider } from "./context/SocketContex.jsx";
+import { SocketProvider } from "./context/SocketContext.jsx";
 
 const queryClient = new QueryClient();
 
