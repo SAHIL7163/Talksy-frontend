@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { acceptFriendRequest, getFriendRequests } from "../lib/api";
 import { ArrowLeft, BellIcon, ClockIcon, MessageSquareIcon, UserCheckIcon } from "lucide-react";
 import NoNotificationsFound from "../components/NoNotificationsFound";
-import { useSocket } from "../context/SocketContex";
+import { useSocket } from "../context/SocketContext";
 import toast from "react-hot-toast";
 
 const NotificationsPage = () => {

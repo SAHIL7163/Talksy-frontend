@@ -46,7 +46,7 @@ const LoginPage = () => {
           )}
 
           <h2 className="text-2xl font-bold mb-2 text-base-content">Welcome Back</h2>
-          <p className="text-base-content mb-8">Sign in to your account to continue your language journey.</p>
+          <p className="text-base-content mb-8">Sign in to your account connect random people.</p>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
@@ -56,7 +56,7 @@ const LoginPage = () => {
               <input
                 id="email"
                 type="email"
-                placeholder="hello@example.com"
+                placeholder="sahildhameja13@gmail.com"
                 value={loginData.email}
                 onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
                 required
