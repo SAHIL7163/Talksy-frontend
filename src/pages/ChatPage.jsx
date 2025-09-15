@@ -6,8 +6,9 @@ import { useThemeStore } from "../store/useThemeStore";
 import { axiosInstance } from "../lib/axios";
 import Picker from "@emoji-mart/react";
 import emojiData from "@emoji-mart/data";
-import { DeleteMessage, fetchFriend, fetchMessages } from "../lib/api";
+import { fetchFriend, fetchMessages } from "../lib/api";
 import { useSocket } from "../context/SocketContext";
+import {v4 as uuidv4} from 'uuid';
 
 const themes = {
   base: {
@@ -115,15 +116,24 @@ export default function ChatPage() {
 
     socket.emit("join_room", channelId);
 
-    socket.on("receive_message", (message) => {
-      console.log("Received message:", message);
+    socket.on("receive_message", (msg) => {
+      setMessages((prev) => {
+        const index = prev.findIndex((m) => m.tempId === msg.tempId);
 
-      setMessages((prev) => [...prev, message]);
+        if (index !== -1) {
+          const updated = [...prev];
+          updated[index] = msg;
+          return updated;
+        } else {
+          return [...prev, msg];
+        }
+      });
     });
-    socket.on("typing", (userId) => {
+
+    socket.on("typing", ({userId}) => {
       if (userId !== authUser._id) setIsFriendTyping(true);
     });
-    socket.on("stop_typing", (userId) => {
+    socket.on("stop_typing", ({userId}) => {
       if (userId !== authUser._id) setIsFriendTyping(false);
     });
 
@@ -131,9 +141,11 @@ export default function ChatPage() {
       setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
     });
 
-    socket.on("message_edited", (updatedMessage) => {
+    socket.on("message_edited", ({messageId, text}) => {
       setMessages((prev) =>
-        prev.map((msg) => (msg._id === updatedMessage._id ? updatedMessage : msg))
+        prev.map((msg) =>
+          msg._id === messageId ? { ...msg, text, isEdited: true } : msg
+        )
       );
     });
 
@@ -178,9 +190,9 @@ export default function ChatPage() {
           if (entry.isIntersecting) {
             const messageId = entry.target.dataset.messageId;
             const message = messages.find((msg) => msg._id === messageId);
-            if (message && message.sender._id !== authUser._id && !message.isRead) {
+          
+            if (message && message.sender._id !== authUser._id && !message.isRead && messageId) {
               try {
-                await axiosInstance.put(`/chat/message/${messageId}/read`);
                 socket.emit("message_read", { messageId, channelId });
               } catch (err) {
                 console.error("Error marking message as read:", err);
@@ -235,8 +247,8 @@ export default function ChatPage() {
 
 const handleDeleteMessage = async (messageId) => {
     try {
-      await DeleteMessage(messageId);
       setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
+      socket.emit("delete_message", { messageId, channelId });
       setMenuOpen(null);
     } catch (err) {
       console.error("Error deleting message:", err);
@@ -246,12 +258,10 @@ const handleDeleteMessage = async (messageId) => {
 const handleEditMessage = async (messageId) => {
     if (!editText.trim()) return;
     try {
-      await axiosInstance.put(`/chat/message/${messageId}`, { text: editText });
-      console.log("Message edited:", messageId, editText);
+      socket.emit("edit_message", { messageId, channelId, text: editText });
       setMessages((prev) =>
         prev.map((msg) =>
         { 
-          console.log(msg._id, messageId, msg._id === messageId);
           return  msg._id === messageId ? { ...msg, text: editText, isEdited: true } : msg
         }
         )
@@ -292,9 +302,29 @@ const handleReplyMessage = (message) => {
   };
 
 const handleSendMessage = (text) => {
-    console.log("Sending message:", text, "Replying to:", replyingTo);
     if (!text.trim()) return;
-    const messageData = { channelId, senderId: authUser._id, text, isRead: false , parentMessage: replyingTo ? replyingTo._id : null};
+
+    const messageData = {
+    channelId,
+    sender: { _id: authUser._id, fullName: authUser.fullName, profilePic: authUser.profilePic },
+    text,
+    isRead: false,
+    parentMessage: replyingTo
+      ? {
+          _id: replyingTo._id,
+          text: replyingTo.text,
+          sender: {
+            _id: replyingTo.sender._id,
+            fullName: replyingTo.sender.fullName,
+            profilePic: replyingTo.sender.profilePic,
+          },
+        }
+      : null,
+    tempId: uuidv4(),
+    createdAt: new Date().toISOString()
+   };
+
+    setMessages((prev) => [...prev, messageData]);
     socket.emit("send_message", messageData);
     setMessageText("");
     setShowInputEmoji(false);
@@ -349,7 +379,7 @@ const handleCallUser = async() => {
           const isSender = msg.sender._id === authUser._id;
           return (
             <div
-              key={msg._id}
+             key={msg?._id || msg.tempId}
               ref={(el) => (messageRefs.current[msg._id] = el)}
               data-message-id={msg._id}
               className={`flex ${isSender ? "justify-end" : "justify-start"} w-full group`}
@@ -469,7 +499,7 @@ const handleCallUser = async() => {
                       {msg.parentMessage && (
                         <div
                           className={`px-3 py-2 rounded-t-2xl rounded-b-none cursor-pointer ${
-                            msg.parentMessage.sender._id === authUser._id ? theme.parentsender : theme.parentreceiver
+                            msg.parentMessage?.sender?._id === authUser._id ? theme.parentsender : theme.parentreceiver
                           } -mx-3 sm:-mx-4 -mt-2 border-b border-gray-300 shadow-sm`}
                         >
                           <span className="text-xs italic text-gray-600 block">Replying to:</span>
@@ -648,5 +678,5 @@ const handleCallUser = async() => {
 
 
 
-  
+
 

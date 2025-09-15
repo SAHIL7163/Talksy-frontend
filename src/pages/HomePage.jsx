@@ -55,13 +55,10 @@ const HomePage = () => {
 
     socket.on("friend_request_accepted", (request) => {
       const acceptedId = String(request._id);
-      console.log("Incoming accepted request ID:", acceptedId);
 
       setOutgoingFriendReqs((prev) =>
         prev.filter((req) => {
           const reqId = String(req._id);
-          console.log("Comparing with outgoing request ID:", reqId);
-          console.log(reqId !== acceptedId);
           return reqId !== acceptedId;
         })
       );
