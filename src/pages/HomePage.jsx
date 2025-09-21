@@ -157,7 +157,7 @@ const HomePage = () => {
           <section className="w-full">
             <div className="mb-6 sm:mb-8">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-base-content">
-                Meet New Learners
+                Meet New Friends
               </h2>
             </div>
 
@@ -179,7 +179,7 @@ const HomePage = () => {
                       No recommendations available
                     </h3>
                     <p className="text-base-content/70 text-sm sm:text-base">
-                      Check back later for new language partners!
+                      Check back later for new friends!
                     </p>
                   </div>
                 </div>
