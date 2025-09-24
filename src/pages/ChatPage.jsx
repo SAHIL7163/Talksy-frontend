@@ -19,6 +19,8 @@ const themes = {
     receiver: "bg-base-300 text-base-content",
     parentsender: "bg-primary text-primary-content/70",
     parentreceiver: "bg-base-300 text-base-content/70",
+    parentSenderBorder: "border-l-primary/50", // linked to sender color
+    parentReceiverBorder: "border-l-base-300/50", // linked to receiver color
     input: "bg-base-200 text-base-content",
     border: "border-base-300",
     inputRing: "focus:ring-primary",
@@ -40,8 +42,10 @@ const themes = {
     chatBg: "bg-[#222e35]",
     sender: "bg-[#005c4b] text-white",
     receiver: "bg-[#202c33] text-white",
-    parentsender: "bg-[#005c4b]/70 text-white bottom-border",
+    parentsender: "bg-[#005c4b]/70 text-white",
     parentreceiver: "bg-[#202c33]/70 text-white",
+    parentSenderBorder: "border-l-[#005c4b]/50", // follows sender
+    parentReceiverBorder: "border-l-[#202c33]/50", // follows receiver
     input: "bg-[#2a3942] text-white",
     border: "border-[#222e35]",
     inputRing: "focus:ring-[#25d366]",
@@ -65,6 +69,8 @@ const themes = {
     receiver: "bg-white text-black border border-gray-200",
     parentsender: "bg-[#d9fdd3]/70 text-black",
     parentreceiver: "bg-white/70 text-black",
+    parentSenderBorder: "border-l-[#d9fdd3]/50", // linked to sender
+    parentReceiverBorder: "border-l-gray-200/50", // linked to receiver
     input: "bg-white text-black",
     border: "border-gray-200",
     inputRing: "focus:ring-[#25d366]",
@@ -440,12 +446,12 @@ export default function ChatPage() {
                   >
                     <div className="flex flex-col">
                       {msg.parentMessage && (
-                        <div
+                    <div
                           className={`px-3 py-2 rounded-t-2xl rounded-b-none cursor-pointer ${
-                            msg.parentMessage?.sender?._id === authUser._id
-                              ? theme.parentsender
-                              : theme.parentreceiver
-                          } -mx-3 sm:-mx-4 border-b border-gray-300 shadow-sm`}
+  msg.parentMessage?.sender?._id === authUser._id
+    ? `${theme.parentsender} border-l-4 border-l-${theme.parentSenderBorder}`
+    : `${theme.parentreceiver} border-l-4 border-l-${theme.parentReceiverBorder}`
+} -mx-3 sm:-mx-4 border-b border-gray-300 shadow-sm`}
                           onClick={() => {
                             const parentMsgRef = messageRefs.current[msg.parentMessage._id];
                             if (parentMsgRef) {
@@ -470,7 +476,7 @@ export default function ChatPage() {
                                 />
                               ) : (
                                 <span className={`text-sm ${theme.headerText}`}>
-                                  {getFileIcon(msg.parentMessage.file.type)} {msg.parentMessage.file.name || "File"}
+                                  {getFileIcon(msg.parentMessage.file.type)}
                                 </span>
                               )}
                             </div>
@@ -556,21 +562,12 @@ export default function ChatPage() {
                                   </div>
                                 </div>
                               ) : msg.file.type?.startsWith("audio/") ? (
-                                <div className="relative group/audio flex flex-col gap-2">
-                                  <div className="flex items-center gap-2">
-                                    <span className={`text-sm ${theme.headerText}`}>
-                                      🎵 {msg.file.name || "Audio.mp3"}
-                                    </span>
-                                  </div>
-                                  <div className="relative">
                                     <audio
                                       src={msg.file.url}
                                       controls
-                                      className={`w-full max-w-[300px] rounded-lg ${theme.border}`}
+                                      className={`w-full min-w-[250px] rounded-lg`}
                                       onError={(e) => console.error("Audio load error:", e)}
                                     />
-                                  </div>
-                                </div>
                               ) : (
                                 <div className="flex items-center gap-2">
                                   <span className={`text-sm ${theme.headerText}`}>
