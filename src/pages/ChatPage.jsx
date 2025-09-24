@@ -509,7 +509,7 @@ export default function ChatPage() {
                       ) : (
                         <div className="mt-2">
                           {msg.file ? (
-                            <div className="flex flex-col gap-2">
+                            <div>
                               {msg.file.type?.startsWith("image/") ? (
                                 <div className="relative group/image">
                                   <img
@@ -528,7 +528,7 @@ export default function ChatPage() {
                                       Download
                                     </a>
                                   </div>
-                                  <span className="text-xs text-gray-400 mt-1">{msg.file.name}</span>
+                                  {/* <span className="text-xs text-gray-400 mt-1">{msg.file.name}</span> */}
                                 </div>
                               ) : msg.file.type?.startsWith("application/pdf") ? (
                                 <div className="relative group/pdf flex flex-col gap-2">
