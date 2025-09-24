@@ -621,7 +621,7 @@ export default function ChatPage() {
                     {menuOpen === msg._id && (
                       <div
                         ref={menuRef}
-                        className={`absolute ${isSender ? "right-0" : "left-0"} top-6 z-50 ${
+                        className={`absolute ${isSender ? "-right-20" : "-left-20"} top-0 z-20 ${
                           theme.menuBg
                         } border ${theme.menuBorder} shadow-lg rounded-lg min-w-[150px] py-2 transition-all duration-200 ease-in-out transform ${
                           menuOpen === msg._id ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
@@ -629,7 +629,7 @@ export default function ChatPage() {
                           isSender ? "right-2" : "left-2"
                         } before:w-4 before:h-4 before:bg-[${
                           theme.menuBg === "bg-white" ? "#ffffff" : theme.menuBg.replace("bg-", "#")
-                        }] before:border before:${theme.menuArrow} before:border-b-0 before:border-r-0 before:transform before:rotate-45 before:-z-10`}
+                        }]`}
                       >
                         <button
                           onClick={() => handleReplyMessage(msg)}
@@ -700,7 +700,7 @@ export default function ChatPage() {
       )}
 
       <footer
-        className={`fixed bottom-0 left-0 right-0 p-3 border-t ${theme.border} ${theme.chatBg} flex flex-col gap-2`}
+        className={`fixed bottom-0 left-0 right-0 p-3 z-50 border-t ${theme.border} ${theme.chatBg} flex flex-col gap-2`}
       >
         {replyingTo && (
           <div
