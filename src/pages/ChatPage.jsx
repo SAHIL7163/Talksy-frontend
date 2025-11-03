@@ -446,7 +446,7 @@ export default function ChatPage() {
                     }`}
                   >
                     <div className="flex flex-col">
-                      {msg.parentMessage && (
+                      {msg?.parentMessage && (
                     <div
                           className={`px-3 py-2 rounded-t-2xl rounded-b-none cursor-pointer ${
                           msg.parentMessage?.sender?._id === authUser._id
@@ -590,7 +590,7 @@ export default function ChatPage() {
                         </div>
                       )}
                       <div className="flex justify-end items-center mt-1 text-xs text-gray-400 gap-1">
-                        {msg.isEdited && <span className="italic">Edited</span>}
+                        {msg?.isEdited && <span className="italic">Edited</span>}
                         {new Date(msg.createdAt).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
