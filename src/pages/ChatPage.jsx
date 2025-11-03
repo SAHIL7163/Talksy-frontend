@@ -1,7 +1,18 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "react-router";
 import useAuthUser from "../hooks/useAuthUser";
-import { SendHorizontal, ArrowLeft, Smile, Video, MoreVertical, Check, CheckCheck, Paperclip, VideoIcon, X } from "lucide-react";
+import {
+  SendHorizontal,
+  ArrowLeft,
+  Smile,
+  Video,
+  MoreVertical,
+  Check,
+  CheckCheck,
+  Paperclip,
+  VideoIcon,
+  X,
+} from "lucide-react";
 import { useThemeStore } from "../store/useThemeStore";
 import { axiosInstance } from "../lib/axios";
 import Picker from "@emoji-mart/react";
@@ -88,7 +99,6 @@ const themes = {
     menuArrow: "border-gray-200",
   },
 };
-
 
 export default function ChatPage() {
   const socket = useSocket();
@@ -198,7 +208,10 @@ export default function ChatPage() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
+      if (
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(event.target)
+      ) {
         setShowInputEmoji(false);
       }
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -220,7 +233,12 @@ export default function ChatPage() {
             const messageId = entry.target.dataset.messageId;
             const message = messages.find((msg) => msg._id === messageId);
 
-            if (message && message.sender._id !== authUser._id && !message.isRead && messageId) {
+            if (
+              message &&
+              message.sender._id !== authUser._id &&
+              !message.isRead &&
+              messageId
+            ) {
               try {
                 socket.emit("message_read", { messageId, channelId });
               } catch (err) {
@@ -287,7 +305,11 @@ export default function ChatPage() {
     try {
       socket.emit("edit_message", { messageId, channelId, text: editText });
       setMessages((prev) =>
-        prev.map((msg) => (msg._id === messageId ? { ...msg, text: editText, isEdited: true } : msg))
+        prev.map((msg) =>
+          msg._id === messageId
+            ? { ...msg, text: editText, isEdited: true }
+            : msg
+        )
       );
       setEditingMessageId(null);
       setEditText("");
@@ -313,7 +335,11 @@ export default function ChatPage() {
 
     const messageData = {
       channelId,
-      sender: { _id: authUser._id, fullName: authUser.fullName, profilePic: authUser.profilePic },
+      sender: {
+        _id: authUser._id,
+        fullName: authUser.fullName,
+        profilePic: authUser.profilePic,
+      },
       text: messageText || "",
       isRead: false,
       parentMessage: replyingTo
@@ -334,10 +360,13 @@ export default function ChatPage() {
 
     if (selectedFile) {
       try {
-        const { data } = await axiosInstance.post("chat/message/s3/generate-upload-url", {
-          filename: selectedFile.name,
-          contentType: selectedFile.type,
-        });
+        const { data } = await axiosInstance.post(
+          "chat/message/s3/generate-upload-url",
+          {
+            filename: selectedFile.name,
+            contentType: selectedFile.type,
+          }
+        );
 
         const { uploadUrl, downloadUrl } = data;
 
@@ -393,9 +422,13 @@ export default function ChatPage() {
   const theme = themes[currentTheme] || themes.base;
 
   return (
-    <div className={`w-full min-h-[100dvh] flex flex-col ${theme.bg} font-sans`}>
+    <div
+      className={`w-full min-h-[100dvh] flex flex-col ${theme.bg} font-sans`}
+    >
       {/* Header */}
-      <header className={`fixed top-25 left-0 right-0 z-40 px-4 py-3 ${theme.headerBg} ${theme.headerBorder} border-b shadow-sm`}>
+      <header
+        className={`fixed top-25 left-0 right-0 z-40 px-4 py-3 ${theme.headerBg} ${theme.headerBorder} border-b shadow-sm`}
+      >
         <div className="flex items-center justify-between max-w-full gap-2">
           <div className="flex items-center gap-2">
             <button onClick={() => window.history.back()} className="md:hidden">
@@ -408,13 +441,22 @@ export default function ChatPage() {
                 className="w-8 h-8 rounded-full border-2 border-gray-300"
               />
             )}
-            <h2 className={`text-base sm:text-lg font-semibold ${theme.headerText}`}>
+            <h2
+              className={`text-base sm:text-lg font-semibold ${theme.headerText}`}
+            >
               {friendUser?.user?.fullName}
-              {isFriendTyping && <span className="ml-2 text-xs italic text-gray-500">typing...</span>}
+              {isFriendTyping && (
+                <span className="ml-2 text-xs italic text-gray-500">
+                  typing...
+                </span>
+              )}
             </h2>
           </div>
           <div className="flex gap-2">
-            <button onClick={handleCallUser} className="p-2 rounded-full hover:bg-gray-200">
+            <button
+              onClick={handleCallUser}
+              className="p-2 rounded-full hover:bg-gray-200"
+            >
               <Video />
             </button>
           </div>
@@ -422,23 +464,36 @@ export default function ChatPage() {
       </header>
 
       {/* Messages */}
-         <main className={`flex-1 px-4 sm:px-5 py-5 mt-[58px] mb-[60px] overflow-y-auto ${theme.chatBg}`}>
-        {messages.length === 0 && <p className="text-gray-400 italic text-center">No messages yet</p>}
+      <main
+        className={`flex-1 px-4 sm:px-5 py-5 mt-[58px] mb-[60px] overflow-y-auto ${theme.chatBg}`}
+      >
+        {messages.length === 0 && (
+          <p className="text-gray-400 italic text-center">No messages yet</p>
+        )}
         <div className="flex flex-col gap-2">
           {messages.map((msg) => {
-            const isSender = msg.sender._id === authUser._id;
+            const isSender = msg.sender?._id
+              ? msg.sender._id === authUser._id
+              : false;
             return (
               <div
                 key={msg?._id || msg.tempId}
                 ref={(el) => (messageRefs.current[msg._id] = el)}
                 data-message-id={msg._id}
-                className={`flex ${isSender ? "justify-end" : "justify-start"} w-full group`}
+                className={`flex ${
+                  isSender ? "justify-end" : "justify-start"
+                } w-full group`}
               >
                 <div
-                  className={`relative flex items-center ${isSender ? "flex-row-reverse" : "flex-row"} gap-1 max-w-full sm:max-w-[70%]`}
+                  className={`relative flex items-center ${
+                    isSender ? "flex-row-reverse" : "flex-row"
+                  } gap-1 max-w-full sm:max-w-[70%]`}
                 >
                   <div
-                    style={{ "--sender-bg": theme.senderColor, "--receiver-bg": theme.receiverColor }}
+                    style={{
+                      "--sender-bg": theme.senderColor,
+                      "--receiver-bg": theme.receiverColor,
+                    }}
                     className={`relative px-3 sm:px-4 pb-2 shadow ${
                       isSender
                         ? `${theme.sender} rounded-t-2xl rounded-bl-2xl`
@@ -447,32 +502,57 @@ export default function ChatPage() {
                   >
                     <div className="flex flex-col">
                       {msg?.parentMessage && (
-                    <div
+                        <div
                           className={`px-3 py-2 rounded-t-2xl rounded-b-none cursor-pointer ${
-                          msg.parentMessage?.sender?._id === authUser._id
-                            ? `${theme.parentsender} border-l-4 border-l-${theme.parentSenderBorder}`
-                            : `${theme.parentreceiver} border-l-4 border-l-${theme.parentReceiverBorder}`
-                        } -mx-3 sm:-mx-4 border-b border-gray-300 shadow-sm`}
+                            msg.parentMessage?.sender?._id === authUser._id
+                              ? `${theme.parentsender} border-l-4 border-l-${theme.parentSenderBorder}`
+                              : `${theme.parentreceiver} border-l-4 border-l-${theme.parentReceiverBorder}`
+                          } -mx-3 sm:-mx-4 border-b border-gray-300 shadow-sm`}
                           onClick={() => {
-                            const parentMsgRef = messageRefs.current[msg.parentMessage._id];
+                            const parentMsgRef =
+                              messageRefs.current[msg.parentMessage._id];
                             if (parentMsgRef) {
-                              parentMsgRef.scrollIntoView({ behavior: "smooth", block: "center" });
+                              parentMsgRef.scrollIntoView({
+                                behavior: "smooth",
+                                block: "center",
+                              });
                               const shadowClass =
                                 msg.parentMessage.sender._id === authUser._id
-                                  ? `shadow-[0_0_2px] ${theme.sender.replace("bg-", "shadow-")}/60`
-                                  : `shadow-[0_0_2px] ${theme.receiver.replace("bg-", "shadow-")}/60`;
-                              parentMsgRef.classList.add(...shadowClass.split(" "));
-                              setTimeout(() => parentMsgRef.classList.remove(...shadowClass.split(" ")), 2000);
+                                  ? `shadow-[0_0_2px] ${theme.sender.replace(
+                                      "bg-",
+                                      "shadow-"
+                                    )}/60`
+                                  : `shadow-[0_0_2px] ${theme.receiver.replace(
+                                      "bg-",
+                                      "shadow-"
+                                    )}/60`;
+                              parentMsgRef.classList.add(
+                                ...shadowClass.split(" ")
+                              );
+                              setTimeout(
+                                () =>
+                                  parentMsgRef.classList.remove(
+                                    ...shadowClass.split(" ")
+                                  ),
+                                2000
+                              );
                             }
                           }}
                         >
-                          <span className="text-xs italic text-gray-600 block">Replying to:</span>
+                          <span className="text-xs italic text-gray-600 block">
+                            Replying to:
+                          </span>
                           {msg.parentMessage.file ? (
                             <div className="flex items-center gap-2">
-                              {msg.parentMessage.file.type?.startsWith("image/") ? (
+                              {msg.parentMessage.file.type?.startsWith(
+                                "image/"
+                              ) ? (
                                 <img
                                   src={msg.parentMessage.file.url}
-                                  alt={msg.parentMessage.file.name || "Parent image"}
+                                  alt={
+                                    msg.parentMessage.file.name ||
+                                    "Parent image"
+                                  }
                                   className="w-10 h-10 rounded object-cover"
                                 />
                               ) : (
@@ -483,9 +563,13 @@ export default function ChatPage() {
                             </div>
                           ) : null}
                           {msg.parentMessage.text ? (
-                            <div className="text-sm truncate">{msg.parentMessage.text}</div>
+                            <div className="text-sm truncate">
+                              {msg.parentMessage.text}
+                            </div>
                           ) : !msg.parentMessage.file ? (
-                            <div className="text-sm italic text-gray-500">No content</div>
+                            <div className="text-sm italic text-gray-500">
+                              No content
+                            </div>
                           ) : null}
                         </div>
                       )}
@@ -523,7 +607,9 @@ export default function ChatPage() {
                                     src={msg.file.url}
                                     alt={msg.file.name || "Uploaded image"}
                                     className={`w-full max-w-[200px] max-h-[200px] rounded-lg object-contain border ${theme.border}`}
-                                    onError={(e) => console.error("Image load error:", e)}
+                                    onError={(e) =>
+                                      console.error("Image load error:", e)
+                                    }
                                   />
                                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover/image:bg-opacity-30 transition-opacity duration-200 rounded-lg flex items-end justify-end p-2">
                                     <a
@@ -537,10 +623,14 @@ export default function ChatPage() {
                                   </div>
                                   {/* <span className="text-xs text-gray-400 mt-1">{msg.file.name}</span> */}
                                 </div>
-                              ) : msg.file.type?.startsWith("application/pdf") ? (
+                              ) : msg.file.type?.startsWith(
+                                  "application/pdf"
+                                ) ? (
                                 <div className="relative group/pdf flex flex-col gap-2">
                                   <div className="flex items-center gap-2">
-                                    <span className={`text-sm ${theme.headerText}`}>
+                                    <span
+                                      className={`text-sm ${theme.headerText}`}
+                                    >
                                       📄 {msg.file.name || "Document.pdf"}
                                     </span>
                                   </div>
@@ -553,7 +643,9 @@ export default function ChatPage() {
                                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover/pdf:bg-opacity-30 transition-opacity duration-200 rounded-lg flex items-end justify-end p-2">
                                       <a
                                         href={msg.file.url}
-                                        download={msg.file.name || "document.pdf"}
+                                        download={
+                                          msg.file.name || "document.pdf"
+                                        }
                                         className={`px-3 py-1 rounded text-sm font-medium ${theme.sendBtn} opacity-0 group-hover/pdf:opacity-100 transition-opacity duration-200`}
                                         title="Download PDF"
                                       >
@@ -563,16 +655,21 @@ export default function ChatPage() {
                                   </div>
                                 </div>
                               ) : msg.file.type?.startsWith("audio/") ? (
-                                    <audio
-                                      src={msg.file.url}
-                                      controls
-                                      className={`w-full min-w-[250px] rounded-lg`}
-                                      onError={(e) => console.error("Audio load error:", e)}
-                                    />
+                                <audio
+                                  src={msg.file.url}
+                                  controls
+                                  className={`w-full min-w-[250px] rounded-lg`}
+                                  onError={(e) =>
+                                    console.error("Audio load error:", e)
+                                  }
+                                />
                               ) : (
                                 <div className="flex items-center gap-2">
-                                  <span className={`text-sm ${theme.headerText}`}>
-                                    {getFileIcon(msg.file.type)} {msg.file.name || "File"}
+                                  <span
+                                    className={`text-sm ${theme.headerText}`}
+                                  >
+                                    {getFileIcon(msg.file.type)}{" "}
+                                    {msg.file.name || "File"}
                                   </span>
                                   <a
                                     href={msg.file.url}
@@ -586,11 +683,17 @@ export default function ChatPage() {
                               )}
                             </div>
                           ) : null}
-                          {msg.text && <div className="whitespace-pre-wrap">{msg.text}</div>}
+                          {msg.text && (
+                            <div className="whitespace-pre-wrap">
+                              {msg.text}
+                            </div>
+                          )}
                         </div>
                       )}
                       <div className="flex justify-end items-center mt-1 text-xs text-gray-400 gap-1">
-                        {msg?.isEdited && <span className="italic">Edited</span>}
+                        {msg?.isEdited && (
+                          <span className="italic">Edited</span>
+                        )}
                         {new Date(msg.createdAt).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -609,7 +712,9 @@ export default function ChatPage() {
                   </div>
                   <div className="relative self-start mt-2">
                     <button
-                      onClick={() => setMenuOpen(menuOpen === msg._id ? null : msg._id)}
+                      onClick={() =>
+                        setMenuOpen(menuOpen === msg._id ? null : msg._id)
+                      }
                       className={`p-1 rounded-full hover:bg-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
                         isSender ? "mr-2" : "ml-2"
                       }`}
@@ -619,14 +724,20 @@ export default function ChatPage() {
                     {menuOpen === msg._id && (
                       <div
                         ref={menuRef}
-                        className={`absolute ${isSender ? "-right-20" : "-left-20"} top-0 z-20 ${
-                          theme.menuBg
-                        } border ${theme.menuBorder} shadow-lg rounded-lg min-w-[150px] py-2 transition-all duration-200 ease-in-out transform ${
-                          menuOpen === msg._id ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+                        className={`absolute ${
+                          isSender ? "-right-20" : "-left-20"
+                        } top-0 z-20 ${theme.menuBg} border ${
+                          theme.menuBorder
+                        } shadow-lg rounded-lg min-w-[150px] py-2 transition-all duration-200 ease-in-out transform ${
+                          menuOpen === msg._id
+                            ? "opacity-100 translate-y-0"
+                            : "opacity-0 translate-y-2"
                         } before:content-[''] before:absolute before:-top-2 before:${
                           isSender ? "right-2" : "left-2"
                         } before:w-4 before:h-4 before:bg-[${
-                          theme.menuBg === "bg-white" ? "#ffffff" : theme.menuBg.replace("bg-", "#")
+                          theme.menuBg === "bg-white"
+                            ? "#ffffff"
+                            : theme.menuBg.replace("bg-", "#")
                         }]`}
                       >
                         <button
@@ -664,7 +775,7 @@ export default function ChatPage() {
           })}
           <div ref={messagesEndRef} />
         </div>
-       </main>
+      </main>
 
       {showCallBanner && !showJitsi && (
         <div className="flex justify-center my-2">
@@ -689,7 +800,12 @@ export default function ChatPage() {
             </button>
             <iframe
               src={`https://meet.jit.si/streamify-${channelId}`}
-              style={{ width: "100%", height: "100%", border: 0, borderRadius: "8px" }}
+              style={{
+                width: "100%",
+                height: "100%",
+                border: 0,
+                borderRadius: "8px",
+              }}
               allow="camera; microphone; fullscreen; display-capture"
               title="Jitsi Video Call"
             />
@@ -703,17 +819,26 @@ export default function ChatPage() {
         {replyingTo && (
           <div
             className={`flex items-center justify-between ${
-              replyingTo.sender._id === authUser._id ? theme.sender : theme.receiver
+              replyingTo.sender._id === authUser._id
+                ? theme.sender
+                : theme.receiver
             } p-2 rounded`}
           >
-            <span className="text-sm italic">Replying to: {replyingTo.text}</span>
-            <button onClick={() => setReplyingTo(null)} className="text-red-500">
+            <span className="text-sm italic">
+              Replying to: {replyingTo.text}
+            </span>
+            <button
+              onClick={() => setReplyingTo(null)}
+              className="text-red-500"
+            >
               Cancel
             </button>
           </div>
         )}
         {selectedFile && (
-          <div className={`flex items-center justify-between p-2 rounded border ${theme.filePreview}`}>
+          <div
+            className={`flex items-center justify-between p-2 rounded border ${theme.filePreview}`}
+          >
             <span className={`text-sm ${theme.headerText}`}>
               {getFileIcon(selectedFile.type)} {selectedFile.name}
             </span>
@@ -747,12 +872,17 @@ export default function ChatPage() {
               >
                 <Picker
                   data={emojiData}
-                  onEmojiSelect={(emoji) => setMessageText((prev) => prev + emoji.native)}
+                  onEmojiSelect={(emoji) =>
+                    setMessageText((prev) => prev + emoji.native)
+                  }
                 />
               </div>
             )}
           </div>
-          <button onClick={() => fileInputRef.current.click()} className="p-1 rounded-full hover:bg-gray-200">
+          <button
+            onClick={() => fileInputRef.current.click()}
+            className="p-1 rounded-full hover:bg-gray-200"
+          >
             <Paperclip className="w-5 h-5 text-gray-500" />
           </button>
           <input
