@@ -471,308 +471,312 @@ export default function ChatPage() {
           <p className="text-gray-400 italic text-center">No messages yet</p>
         )}
         <div className="flex flex-col gap-2">
-          {messages.map((msg) => {
-            const isSender = msg.sender?._id
-              ? msg.sender._id === authUser._id
-              : false;
-            return (
-              <div
-                key={msg?._id || msg.tempId}
-                ref={(el) => (messageRefs.current[msg._id] = el)}
-                data-message-id={msg._id}
-                className={`flex ${
-                  isSender ? "justify-end" : "justify-start"
-                } w-full group`}
-              >
+          {messages
+            .filter((msg) => !msg?.isAi)
+            .map((msg) => {
+              const isSender = msg.sender?._id
+                ? msg.sender._id === authUser._id
+                : false;
+              return (
                 <div
-                  className={`relative flex items-center ${
-                    isSender ? "flex-row-reverse" : "flex-row"
-                  } gap-1 max-w-full sm:max-w-[70%]`}
+                  key={msg?._id || msg.tempId}
+                  ref={(el) => (messageRefs.current[msg._id] = el)}
+                  data-message-id={msg._id}
+                  className={`flex ${
+                    isSender ? "justify-end" : "justify-start"
+                  } w-full group`}
                 >
                   <div
-                    style={{
-                      "--sender-bg": theme.senderColor,
-                      "--receiver-bg": theme.receiverColor,
-                    }}
-                    className={`relative px-3 sm:px-4 pb-2 shadow ${
-                      isSender
-                        ? `${theme.sender} rounded-t-2xl rounded-bl-2xl`
-                        : `${theme.receiver} rounded-t-2xl rounded-br-2xl`
-                    }`}
+                    className={`relative flex items-center ${
+                      isSender ? "flex-row-reverse" : "flex-row"
+                    } gap-1 max-w-full sm:max-w-[70%]`}
                   >
-                    <div className="flex flex-col">
-                      {msg?.parentMessage && (
-                        <div
-                          className={`px-3 py-2 rounded-t-2xl rounded-b-none cursor-pointer ${
-                            msg.parentMessage?.sender?._id === authUser._id
-                              ? `${theme.parentsender} border-l-4 border-l-${theme.parentSenderBorder}`
-                              : `${theme.parentreceiver} border-l-4 border-l-${theme.parentReceiverBorder}`
-                          } -mx-3 sm:-mx-4 border-b border-gray-300 shadow-sm`}
-                          onClick={() => {
-                            const parentMsgRef =
-                              messageRefs.current[msg.parentMessage._id];
-                            if (parentMsgRef) {
-                              parentMsgRef.scrollIntoView({
-                                behavior: "smooth",
-                                block: "center",
-                              });
-                              const shadowClass =
-                                msg.parentMessage.sender._id === authUser._id
-                                  ? `shadow-[0_0_2px] ${theme.sender.replace(
-                                      "bg-",
-                                      "shadow-"
-                                    )}/60`
-                                  : `shadow-[0_0_2px] ${theme.receiver.replace(
-                                      "bg-",
-                                      "shadow-"
-                                    )}/60`;
-                              parentMsgRef.classList.add(
-                                ...shadowClass.split(" ")
-                              );
-                              setTimeout(
-                                () =>
-                                  parentMsgRef.classList.remove(
-                                    ...shadowClass.split(" ")
-                                  ),
-                                2000
-                              );
-                            }
-                          }}
-                        >
-                          <span className="text-xs italic text-gray-600 block">
-                            Replying to:
-                          </span>
-                          {msg.parentMessage.file ? (
-                            <div className="flex items-center gap-2">
-                              {msg.parentMessage.file.type?.startsWith(
-                                "image/"
-                              ) ? (
-                                <img
-                                  src={msg.parentMessage.file.url}
-                                  alt={
-                                    msg.parentMessage.file.name ||
-                                    "Parent image"
-                                  }
-                                  className="w-10 h-10 rounded object-cover"
-                                />
-                              ) : (
-                                <span className={`text-sm ${theme.headerText}`}>
-                                  {getFileIcon(msg.parentMessage.file.type)}
-                                </span>
-                              )}
-                            </div>
-                          ) : null}
-                          {msg.parentMessage.text ? (
-                            <div className="text-sm truncate">
-                              {msg.parentMessage.text}
-                            </div>
-                          ) : !msg.parentMessage.file ? (
-                            <div className="text-sm italic text-gray-500">
-                              No content
-                            </div>
-                          ) : null}
-                        </div>
-                      )}
-                      {editingMessageId === msg._id ? (
-                        <div className="flex gap-2 mt-2">
-                          <input
-                            value={editText}
-                            onChange={(e) => setEditText(e.target.value)}
-                            className={`flex-1 p-2 rounded border ${theme.border} ${theme.input} focus:outline-none ${theme.inputRing} min-h-[40px]`}
-                            autoFocus
-                          />
-                          <button
-                            onClick={() => handleEditMessage(msg._id)}
-                            className={`px-2 py-1 ${theme.sendBtn} rounded min-h-[40px]`}
-                          >
-                            Save
-                          </button>
-                          <button
+                    <div
+                      style={{
+                        "--sender-bg": theme.senderColor,
+                        "--receiver-bg": theme.receiverColor,
+                      }}
+                      className={`relative px-3 sm:px-4 pb-2 shadow ${
+                        isSender
+                          ? `${theme.sender} rounded-t-2xl rounded-bl-2xl`
+                          : `${theme.receiver} rounded-t-2xl rounded-br-2xl`
+                      }`}
+                    >
+                      <div className="flex flex-col">
+                        {msg?.parentMessage && (
+                          <div
+                            className={`px-3 py-2 rounded-t-2xl rounded-b-none cursor-pointer ${
+                              msg.parentMessage?.sender?._id === authUser._id
+                                ? `${theme.parentsender} border-l-4 border-l-${theme.parentSenderBorder}`
+                                : `${theme.parentreceiver} border-l-4 border-l-${theme.parentReceiverBorder}`
+                            } -mx-3 sm:-mx-4 border-b border-gray-300 shadow-sm`}
                             onClick={() => {
-                              setEditingMessageId(null);
-                              setEditText("");
+                              const parentMsgRef =
+                                messageRefs.current[msg.parentMessage._id];
+                              if (parentMsgRef) {
+                                parentMsgRef.scrollIntoView({
+                                  behavior: "smooth",
+                                  block: "center",
+                                });
+                                const shadowClass =
+                                  msg.parentMessage.sender._id === authUser._id
+                                    ? `shadow-[0_0_2px] ${theme.sender.replace(
+                                        "bg-",
+                                        "shadow-"
+                                      )}/60`
+                                    : `shadow-[0_0_2px] ${theme.receiver.replace(
+                                        "bg-",
+                                        "shadow-"
+                                      )}/60`;
+                                parentMsgRef.classList.add(
+                                  ...shadowClass.split(" ")
+                                );
+                                setTimeout(
+                                  () =>
+                                    parentMsgRef.classList.remove(
+                                      ...shadowClass.split(" ")
+                                    ),
+                                  2000
+                                );
+                              }
                             }}
-                            className="px-2 py-1 bg-gray-300 text-black rounded min-h-[40px]"
                           >
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="mt-2">
-                          {msg.file ? (
-                            <div>
-                              {msg.file.type?.startsWith("image/") ? (
-                                <div className="relative group/image">
-                                  <img
-                                    src={msg.file.url}
-                                    alt={msg.file.name || "Uploaded image"}
-                                    className={`w-full max-w-[200px] max-h-[200px] rounded-lg object-contain border ${theme.border}`}
-                                    onError={(e) =>
-                                      console.error("Image load error:", e)
-                                    }
-                                  />
-                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover/image:bg-opacity-30 transition-opacity duration-200 rounded-lg flex items-end justify-end p-2">
-                                    <a
-                                      href={msg.file.url}
-                                      download={msg.file.name || "image"}
-                                      className={`px-3 py-1 rounded text-sm font-medium ${theme.sendBtn} opacity-0 group-hover/image:opacity-100 transition-opacity duration-200`}
-                                      title="Download image"
-                                    >
-                                      Download
-                                    </a>
-                                  </div>
-                                  {/* <span className="text-xs text-gray-400 mt-1">{msg.file.name}</span> */}
-                                </div>
-                              ) : msg.file.type?.startsWith(
-                                  "application/pdf"
+                            <span className="text-xs italic text-gray-600 block">
+                              Replying to:
+                            </span>
+                            {msg.parentMessage.file ? (
+                              <div className="flex items-center gap-2">
+                                {msg.parentMessage.file.type?.startsWith(
+                                  "image/"
                                 ) ? (
-                                <div className="relative group/pdf flex flex-col gap-2">
-                                  <div className="flex items-center gap-2">
-                                    <span
-                                      className={`text-sm ${theme.headerText}`}
-                                    >
-                                      📄 {msg.file.name || "Document.pdf"}
-                                    </span>
-                                  </div>
-                                  <div className="relative">
-                                    <iframe
-                                      src={`${msg.file.url}#toolbar=0`}
-                                      className={`w-full max-w-[200px] h-[200px] rounded-lg border ${theme.border}`}
-                                      title="PDF Preview"
+                                  <img
+                                    src={msg.parentMessage.file.url}
+                                    alt={
+                                      msg.parentMessage.file.name ||
+                                      "Parent image"
+                                    }
+                                    className="w-10 h-10 rounded object-cover"
+                                  />
+                                ) : (
+                                  <span
+                                    className={`text-sm ${theme.headerText}`}
+                                  >
+                                    {getFileIcon(msg.parentMessage.file.type)}
+                                  </span>
+                                )}
+                              </div>
+                            ) : null}
+                            {msg.parentMessage.text ? (
+                              <div className="text-sm truncate">
+                                {msg.parentMessage.text}
+                              </div>
+                            ) : !msg.parentMessage.file ? (
+                              <div className="text-sm italic text-gray-500">
+                                No content
+                              </div>
+                            ) : null}
+                          </div>
+                        )}
+                        {editingMessageId === msg._id ? (
+                          <div className="flex gap-2 mt-2">
+                            <input
+                              value={editText}
+                              onChange={(e) => setEditText(e.target.value)}
+                              className={`flex-1 p-2 rounded border ${theme.border} ${theme.input} focus:outline-none ${theme.inputRing} min-h-[40px]`}
+                              autoFocus
+                            />
+                            <button
+                              onClick={() => handleEditMessage(msg._id)}
+                              className={`px-2 py-1 ${theme.sendBtn} rounded min-h-[40px]`}
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingMessageId(null);
+                                setEditText("");
+                              }}
+                              className="px-2 py-1 bg-gray-300 text-black rounded min-h-[40px]"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="mt-2">
+                            {msg.file ? (
+                              <div>
+                                {msg.file.type?.startsWith("image/") ? (
+                                  <div className="relative group/image">
+                                    <img
+                                      src={msg.file.url}
+                                      alt={msg.file.name || "Uploaded image"}
+                                      className={`w-full max-w-[200px] max-h-[200px] rounded-lg object-contain border ${theme.border}`}
+                                      onError={(e) =>
+                                        console.error("Image load error:", e)
+                                      }
                                     />
-                                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover/pdf:bg-opacity-30 transition-opacity duration-200 rounded-lg flex items-end justify-end p-2">
+                                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover/image:bg-opacity-30 transition-opacity duration-200 rounded-lg flex items-end justify-end p-2">
                                       <a
                                         href={msg.file.url}
-                                        download={
-                                          msg.file.name || "document.pdf"
-                                        }
-                                        className={`px-3 py-1 rounded text-sm font-medium ${theme.sendBtn} opacity-0 group-hover/pdf:opacity-100 transition-opacity duration-200`}
-                                        title="Download PDF"
+                                        download={msg.file.name || "image"}
+                                        className={`px-3 py-1 rounded text-sm font-medium ${theme.sendBtn} opacity-0 group-hover/image:opacity-100 transition-opacity duration-200`}
+                                        title="Download image"
                                       >
                                         Download
                                       </a>
                                     </div>
+                                    {/* <span className="text-xs text-gray-400 mt-1">{msg.file.name}</span> */}
                                   </div>
-                                </div>
-                              ) : msg.file.type?.startsWith("audio/") ? (
-                                <audio
-                                  src={msg.file.url}
-                                  controls
-                                  className={`w-full min-w-[250px] rounded-lg`}
-                                  onError={(e) =>
-                                    console.error("Audio load error:", e)
-                                  }
-                                />
+                                ) : msg.file.type?.startsWith(
+                                    "application/pdf"
+                                  ) ? (
+                                  <div className="relative group/pdf flex flex-col gap-2">
+                                    <div className="flex items-center gap-2">
+                                      <span
+                                        className={`text-sm ${theme.headerText}`}
+                                      >
+                                        📄 {msg.file.name || "Document.pdf"}
+                                      </span>
+                                    </div>
+                                    <div className="relative">
+                                      <iframe
+                                        src={`${msg.file.url}#toolbar=0`}
+                                        className={`w-full max-w-[200px] h-[200px] rounded-lg border ${theme.border}`}
+                                        title="PDF Preview"
+                                      />
+                                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover/pdf:bg-opacity-30 transition-opacity duration-200 rounded-lg flex items-end justify-end p-2">
+                                        <a
+                                          href={msg.file.url}
+                                          download={
+                                            msg.file.name || "document.pdf"
+                                          }
+                                          className={`px-3 py-1 rounded text-sm font-medium ${theme.sendBtn} opacity-0 group-hover/pdf:opacity-100 transition-opacity duration-200`}
+                                          title="Download PDF"
+                                        >
+                                          Download
+                                        </a>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : msg.file.type?.startsWith("audio/") ? (
+                                  <audio
+                                    src={msg.file.url}
+                                    controls
+                                    className={`w-full min-w-[250px] rounded-lg`}
+                                    onError={(e) =>
+                                      console.error("Audio load error:", e)
+                                    }
+                                  />
+                                ) : (
+                                  <div className="flex items-center gap-2">
+                                    <span
+                                      className={`text-sm ${theme.headerText}`}
+                                    >
+                                      {getFileIcon(msg.file.type)}{" "}
+                                      {msg.file.name || "File"}
+                                    </span>
+                                    <a
+                                      href={msg.file.url}
+                                      download={msg.file.name || "file"}
+                                      className={`px-3 py-1 rounded text-sm font-medium ${theme.sendBtn}`}
+                                      title="Download file"
+                                    >
+                                      Download
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                            ) : null}
+                            {msg.text && (
+                              <div className="whitespace-pre-wrap">
+                                {msg.text}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        <div className="flex justify-end items-center mt-1 text-xs text-gray-400 gap-1">
+                          {msg?.isEdited && (
+                            <span className="italic">Edited</span>
+                          )}
+                          {new Date(msg.createdAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                          {isSender && (
+                            <span>
+                              {msg.isRead ? (
+                                <CheckCheck className="w-4 h-4 text-blue-500" />
                               ) : (
-                                <div className="flex items-center gap-2">
-                                  <span
-                                    className={`text-sm ${theme.headerText}`}
-                                  >
-                                    {getFileIcon(msg.file.type)}{" "}
-                                    {msg.file.name || "File"}
-                                  </span>
-                                  <a
-                                    href={msg.file.url}
-                                    download={msg.file.name || "file"}
-                                    className={`px-3 py-1 rounded text-sm font-medium ${theme.sendBtn}`}
-                                    title="Download file"
-                                  >
-                                    Download
-                                  </a>
-                                </div>
+                                <Check className="w-4 h-4 text-gray-400" />
                               )}
-                            </div>
-                          ) : null}
-                          {msg.text && (
-                            <div className="whitespace-pre-wrap">
-                              {msg.text}
-                            </div>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="relative self-start mt-2">
+                      <button
+                        onClick={() =>
+                          setMenuOpen(menuOpen === msg._id ? null : msg._id)
+                        }
+                        className={`p-1 rounded-full hover:bg-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                          isSender ? "mr-2" : "ml-2"
+                        }`}
+                      >
+                        <MoreVertical className={`w-4 h-4 ${theme.menuIcon}`} />
+                      </button>
+                      {menuOpen === msg._id && (
+                        <div
+                          ref={menuRef}
+                          className={`absolute ${
+                            isSender ? "-right-20" : "-left-20"
+                          } top-0 z-20 ${theme.menuBg} border ${
+                            theme.menuBorder
+                          } shadow-lg rounded-lg min-w-[150px] py-2 transition-all duration-200 ease-in-out transform ${
+                            menuOpen === msg._id
+                              ? "opacity-100 translate-y-0"
+                              : "opacity-0 translate-y-2"
+                          } before:content-[''] before:absolute before:-top-2 before:${
+                            isSender ? "right-2" : "left-2"
+                          } before:w-4 before:h-4 before:bg-[${
+                            theme.menuBg === "bg-white"
+                              ? "#ffffff"
+                              : theme.menuBg.replace("bg-", "#")
+                          }]`}
+                        >
+                          <button
+                            onClick={() => handleReplyMessage(msg)}
+                            className={`block w-full text-left px-4 py-2 ${theme.menuText} ${theme.menuHover} text-sm font-medium`}
+                          >
+                            Reply
+                          </button>
+                          {isSender && msg.text && !msg.file && (
+                            <button
+                              onClick={() => {
+                                setEditingMessageId(msg._id);
+                                setEditText(msg.text);
+                                setMenuOpen(null);
+                              }}
+                              className={`block w-full text-left px-4 py-2 ${theme.menuText} ${theme.menuHover} text-sm font-medium`}
+                            >
+                              Edit
+                            </button>
+                          )}
+                          {isSender && msg.text && (
+                            <button
+                              onClick={() => handleDeleteMessage(msg._id)}
+                              className={`block w-full text-left px-4 py-2 ${theme.menuText} ${theme.menuHover} text-red-600 text-sm font-medium`}
+                            >
+                              Delete
+                            </button>
                           )}
                         </div>
                       )}
-                      <div className="flex justify-end items-center mt-1 text-xs text-gray-400 gap-1">
-                        {msg?.isEdited && (
-                          <span className="italic">Edited</span>
-                        )}
-                        {new Date(msg.createdAt).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                        {isSender && (
-                          <span>
-                            {msg.isRead ? (
-                              <CheckCheck className="w-4 h-4 text-blue-500" />
-                            ) : (
-                              <Check className="w-4 h-4 text-gray-400" />
-                            )}
-                          </span>
-                        )}
-                      </div>
                     </div>
                   </div>
-                  <div className="relative self-start mt-2">
-                    <button
-                      onClick={() =>
-                        setMenuOpen(menuOpen === msg._id ? null : msg._id)
-                      }
-                      className={`p-1 rounded-full hover:bg-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
-                        isSender ? "mr-2" : "ml-2"
-                      }`}
-                    >
-                      <MoreVertical className={`w-4 h-4 ${theme.menuIcon}`} />
-                    </button>
-                    {menuOpen === msg._id && (
-                      <div
-                        ref={menuRef}
-                        className={`absolute ${
-                          isSender ? "-right-20" : "-left-20"
-                        } top-0 z-20 ${theme.menuBg} border ${
-                          theme.menuBorder
-                        } shadow-lg rounded-lg min-w-[150px] py-2 transition-all duration-200 ease-in-out transform ${
-                          menuOpen === msg._id
-                            ? "opacity-100 translate-y-0"
-                            : "opacity-0 translate-y-2"
-                        } before:content-[''] before:absolute before:-top-2 before:${
-                          isSender ? "right-2" : "left-2"
-                        } before:w-4 before:h-4 before:bg-[${
-                          theme.menuBg === "bg-white"
-                            ? "#ffffff"
-                            : theme.menuBg.replace("bg-", "#")
-                        }]`}
-                      >
-                        <button
-                          onClick={() => handleReplyMessage(msg)}
-                          className={`block w-full text-left px-4 py-2 ${theme.menuText} ${theme.menuHover} text-sm font-medium`}
-                        >
-                          Reply
-                        </button>
-                        {isSender && msg.text && !msg.file && (
-                          <button
-                            onClick={() => {
-                              setEditingMessageId(msg._id);
-                              setEditText(msg.text);
-                              setMenuOpen(null);
-                            }}
-                            className={`block w-full text-left px-4 py-2 ${theme.menuText} ${theme.menuHover} text-sm font-medium`}
-                          >
-                            Edit
-                          </button>
-                        )}
-                        {isSender && msg.text && (
-                          <button
-                            onClick={() => handleDeleteMessage(msg._id)}
-                            className={`block w-full text-left px-4 py-2 ${theme.menuText} ${theme.menuHover} text-red-600 text-sm font-medium`}
-                          >
-                            Delete
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
           <div ref={messagesEndRef} />
         </div>
       </main>
